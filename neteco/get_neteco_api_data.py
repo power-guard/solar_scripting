@@ -46,7 +46,7 @@ def handle_plant_list(plant_list_response, BASE_URL, token):
             plant_name = plant['plantName']
 
             # Send the data to API only plantid and plant name 
-            post_plant_details(plants_id, plant_name)
+            #post_plant_details(plants_id, plant_name)
 
             # Collect plant ID
             plant_ids.append(plants_id)
@@ -54,7 +54,8 @@ def handle_plant_list(plant_list_response, BASE_URL, token):
     else:
         print('Received empty plant list.')
     # Pass the collected plant IDs to handle_device_list
-    handle_device_list(BASE_URL, plant_ids, token)
+    #handle_device_list(BASE_URL, plant_ids, token)
+    get_realtime_data(BASE_URL, plant_ids, token)
 
 
 
@@ -105,22 +106,63 @@ def handle_device_list(BASE_URL, plant_ids, token):
     
 
 
-def get_realtime_data(BASE_URL, plantid, token):
-    url = f'{BASE_URL}/queryDeviceDetail'
-    params = {
-            'openApiroarand': token,
-            'plantid': plantid
-            }
-    real_time_data = session.post(url, params=params, verify=False)
-    real_time_data.raise_for_status()
-    response_json = real_time_data.json()
+def get_realtime_data(BASE_URL, plant_ids, token):
+    # Calculate the quarter size
+    quarter_size = len(plant_ids) // 4
+    first_quarter = plant_ids[:quarter_size]
+    second_quarter = plant_ids[quarter_size:2*quarter_size]
+    third_quarter = plant_ids[2*quarter_size:3*quarter_size]
+    fourth_quarter = plant_ids[3*quarter_size:]
 
-    if 'resultSunData' in response_json['resultData']:
-        for data in response_json['resultData']['resultSunData']:
-            prod_details = {'deviceid': data['deviceid'], 'deviceName': data['deviceName'], 'dailyPowerGeneration': data['dailyPowerGeneration']}
-            print(prod_details)
-    else:
-        print('Received empty plant list.')
+    quarters = [first_quarter, second_quarter, third_quarter, fourth_quarter]
+    # Iterate over each quarter
+    for quarter in quarters:
+        # Iterate over each plant ID in the current quarter
+        for plant_id in quarter:
+            print(plant_id)
+            url = f'{BASE_URL}/queryDeviceDetail'
+            params = {
+                'openApiroarand': token,
+                'plantid': plant_id
+            }
+            real_time_data = session.post(url, params=params, verify=False)
+            real_time_data.raise_for_status()
+            response_json = real_time_data.json()
+
+            if 'resultSunData' in response_json['resultData']:
+                for data in response_json['resultData']['resultSunData']:
+                    prod_details = {'deviceid': data['deviceid'], 'deviceName': data['deviceName'], 'dailyPowerGeneration': data['dailyPowerGeneration']}
+                    print(prod_details)
+            else:
+                print('Received empty plant list.')
+            # for data in response_json['resultData']:
+            #     plant_id = data['plantid']
+            #     logger_name = data['SmartLogger']
+            #     device_id = data['deviceid']
+            #     device_name = data['deviceName']
+                
+            #     #Send the data to API only plant_id, logger_name, device_id, device_name
+            #     post_devicelist_details(plant_id, logger_name, device_id, device_name)
+
+        # Wait for 10 seconds before making requests for the next quarter
+        time.sleep(10)
+
+
+            # url = f'{BASE_URL}/queryDeviceDetail'
+            # params = {
+            #         'openApiroarand': token,
+            #         'plantid': plant_id
+            #         }
+            # real_time_data = session.post(url, params=params, verify=False)
+            # real_time_data.raise_for_status()
+            # response_json = real_time_data.json()
+
+            # if 'resultSunData' in response_json['resultData']:
+            #     for data in response_json['resultData']['resultSunData']:
+            #         prod_details = {'deviceid': data['deviceid'], 'deviceName': data['deviceName'], 'dailyPowerGeneration': data['dailyPowerGeneration']}
+            #         print(prod_details)
+            # else:
+            #     print('Received empty plant list.')
 
 
 

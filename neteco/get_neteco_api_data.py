@@ -2,7 +2,9 @@ import os
 import time
 import requests
 import json
-from .post_neteco_to_api import post_plant_details, post_devicelist_details
+from .post_neteco_to_api import (post_plant_details, 
+                                 post_devicelist_details,
+                                 post_daily_power_generation)
 
 # Session
 session = requests.Session()
@@ -14,16 +16,12 @@ def read_credentials_from_json(file_path):
     return credentials_data['credentials']
 
 
-
-
 def login(base_url, user, password):
     url = f'{base_url}/login'
     params = {'userName': user, 'password': password}
     response = session.post(url, params=params, verify=False)
     response.raise_for_status()
     return response.json()
-
-
 
 
 def get_plant_list(BASE_URL, token):
@@ -46,7 +44,7 @@ def handle_plant_list(plant_list_response, BASE_URL, token):
             plant_name = plant['plantName']
 
             # Send the data to API only plantid and plant name 
-            #post_plant_details(plants_id, plant_name)
+            post_plant_details(plants_id, plant_name)
 
             # Collect plant ID
             plant_ids.append(plants_id)
@@ -54,13 +52,12 @@ def handle_plant_list(plant_list_response, BASE_URL, token):
     else:
         print('Received empty plant list.')
     # Pass the collected plant IDs to handle_device_list
-    #handle_device_list(BASE_URL, plant_ids, token)
+    handle_device_list(BASE_URL, plant_ids, token)
     get_realtime_data(BASE_URL, plant_ids, token)
 
 
-
 def handle_device_list(BASE_URL, plant_ids, token):
-    
+
     # Calculate the quarter size
     quarter_size = len(plant_ids) // 4
     first_quarter = plant_ids[:quarter_size]
@@ -88,22 +85,18 @@ def handle_device_list(BASE_URL, plant_ids, token):
             except json.JSONDecodeError:
                 print("Error: Unable to decode JSON response.")
                 print("Response Text:", response_text)
-            
+
             for data in response_json['resultData']:
                 plant_id = data['plantid']
                 logger_name = data['SmartLogger']
                 device_id = data['deviceid']
                 device_name = data['deviceName']
-                
+
                 #Send the data to API only plant_id, logger_name, device_id, device_name
                 post_devicelist_details(plant_id, logger_name, device_id, device_name)
 
         # Wait for 10 seconds before making requests for the next quarter
         time.sleep(10)
-
-
-    
-    
 
 
 def get_realtime_data(BASE_URL, plant_ids, token):
@@ -119,7 +112,7 @@ def get_realtime_data(BASE_URL, plant_ids, token):
     for quarter in quarters:
         # Iterate over each plant ID in the current quarter
         for plant_id in quarter:
-            print(plant_id)
+            print(f"Plant ID number= {plant_id}")
             url = f'{BASE_URL}/queryDeviceDetail'
             params = {
                 'openApiroarand': token,
@@ -131,44 +124,14 @@ def get_realtime_data(BASE_URL, plant_ids, token):
 
             if 'resultSunData' in response_json['resultData']:
                 for data in response_json['resultData']['resultSunData']:
-                    prod_details = {'deviceid': data['deviceid'], 'deviceName': data['deviceName'], 'dailyPowerGeneration': data['dailyPowerGeneration']}
-                    print(prod_details)
+                    device_id = data['deviceid']
+                    power_gene = data['dailyPowerGeneration']
+                    post_daily_power_generation(device_id, power_gene)
+                    #print(data)
             else:
-                print('Received empty plant list.')
-            # for data in response_json['resultData']:
-            #     plant_id = data['plantid']
-            #     logger_name = data['SmartLogger']
-            #     device_id = data['deviceid']
-            #     device_name = data['deviceName']
-                
-            #     #Send the data to API only plant_id, logger_name, device_id, device_name
-            #     post_devicelist_details(plant_id, logger_name, device_id, device_name)
-
+                print('Received empty device data.')
         # Wait for 10 seconds before making requests for the next quarter
         time.sleep(10)
-
-
-            # url = f'{BASE_URL}/queryDeviceDetail'
-            # params = {
-            #         'openApiroarand': token,
-            #         'plantid': plant_id
-            #         }
-            # real_time_data = session.post(url, params=params, verify=False)
-            # real_time_data.raise_for_status()
-            # response_json = real_time_data.json()
-
-            # if 'resultSunData' in response_json['resultData']:
-            #     for data in response_json['resultData']['resultSunData']:
-            #         prod_details = {'deviceid': data['deviceid'], 'deviceName': data['deviceName'], 'dailyPowerGeneration': data['dailyPowerGeneration']}
-            #         print(prod_details)
-            # else:
-            #     print('Received empty plant list.')
-
-
-
-
-
-
 
 
 

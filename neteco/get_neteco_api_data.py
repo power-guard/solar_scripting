@@ -2,173 +2,210 @@ import os
 import time
 import requests
 import json
-from .post_neteco_to_api import (post_plant_details, 
-                                 post_devicelist_details,
-                                 post_daily_power_generation)
+import logging
+from requests.exceptions import RequestException, HTTPError
+from .post_neteco_to_api import (
+    post_plant_details, 
+    post_devicelist_details,
+    post_daily_power_generation
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Session
 session = requests.Session()
 session.verify = False  # Disabling SSL certificate verification
 
 def read_credentials_from_json(file_path):
-    with open(file_path, 'r') as f:
-        credentials_data = json.load(f)
-    return credentials_data['credentials']
-
+    """Read credentials from a JSON file."""
+    try:
+        with open(file_path, 'r') as f:
+            credentials_data = json.load(f)
+        return credentials_data['credentials']
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        logging.error(f"Error reading credentials: {e}")
+        raise
 
 def login(base_url, user, password):
+    """Login to the API and return the token."""
     url = f'{base_url}/login'
     params = {'userName': user, 'password': password}
-    response = session.post(url, params=params, verify=False)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = session.post(url, params=params, verify=False)
+        response.raise_for_status()
+        return response.json()
+    except RequestException as e:
+        logging.error(f"Login request failed: {e}")
+        raise
+    except HTTPError as e:
+        logging.error(f"HTTP error occurred: {e}")
+        raise
 
-
-def get_plant_list(BASE_URL, token):
-    url = f'{BASE_URL}/queryPlantList'
+def get_plant_list(base_url, token):
+    """Retrieve the list of plants from the API."""
+    url = f'{base_url}/queryPlantList'
     params = {'openApiroarand': token}
-    response = session.post(url, params=params, verify=False)
-    response.raise_for_status()
-    return response.json()
+    try:
+        response = session.post(url, params=params, verify=False)
+        response.raise_for_status()
+        return response.json()
+    except RequestException as e:
+        logging.error(f"Get plant list request failed: {e}")
+        raise
+    except HTTPError as e:
+        logging.error(f"HTTP error occurred: {e}")
+        raise
 
+def handle_plant_list(plant_list_response, base_url, token):
+    """
+    Process the plant list response:
+    - Extract plant IDs and names.
+    - Send plant details to the API.
+    - Handle device list and real-time data for each plant.
+    """
+    result_data = plant_list_response.get('resultData', [])
+    plant_ids = []
 
-def handle_plant_list(plant_list_response, BASE_URL, token):
-    """
-    Getting plant id, plant name 
-    """
-    result_data = plant_list_response['resultData']
-    plant_ids = []  # Initialize an empty list to collect plant IDs
     if result_data:
         for plant in result_data:
-            plants_id = plant['plantid']
-            plant_name = plant['plantName']
+            plants_id = plant.get('plantid')
+            plant_name = plant.get('plantName')
 
-            # Send the data to API only plantid and plant name 
-            post_plant_details(plants_id, plant_name)
-
-            # Collect plant ID
-            plant_ids.append(plants_id)
+            if plants_id and plant_name:
+                post_plant_details(plants_id, plant_name)
+                plant_ids.append(plants_id)
+            else:
+                logging.warning(f"Invalid plant data: {plant}")
 
     else:
-        print('Received empty plant list.')
-    # Pass the collected plant IDs to handle_device_list
-    handle_device_list(BASE_URL, plant_ids, token)
-    get_realtime_data(BASE_URL, plant_ids, token)
+        logging.warning('Received empty plant list.')
+
+    handle_device_list(base_url, plant_ids, token)
+    #get_realtime_data(base_url, plant_ids, token)
 
 
-def handle_device_list(BASE_URL, plant_ids, token):
+def handle_device_list(base_url, plant_ids, token):
+    """
+    Handle the device list for each plant:
+    - Process plant IDs in quarters to avoid overloading the server.
+    - Send device details to the API.
+    """
+    quarter_size = max(1, len(plant_ids) // 4)
+    quarters = [plant_ids[i:i + quarter_size] for i in range(0, len(plant_ids), quarter_size)]
 
-    # Calculate the quarter size
-    quarter_size = len(plant_ids) // 4
-    first_quarter = plant_ids[:quarter_size]
-    second_quarter = plant_ids[quarter_size:2*quarter_size]
-    third_quarter = plant_ids[2*quarter_size:3*quarter_size]
-    fourth_quarter = plant_ids[3*quarter_size:]
-
-    quarters = [first_quarter, second_quarter, third_quarter, fourth_quarter]
-    # Iterate over each quarter
     for quarter in quarters:
-        # Iterate over each plant ID in the current quarter
         for plant_id in quarter:
-            print(plant_id)
-            url = f'{BASE_URL}/queryDeviceList'
-            params = {
-                'openApiroarand': token,
-                'plantid': plant_id
-            }
-            device_list = session.post(url, params=params, verify=False)
-            device_list.raise_for_status()
+            logging.info(f"Processing devices for plant ID: {plant_id}")
+            url = f'{base_url}/queryDeviceList'
+            params = {'openApiroarand': token, 'plantid': plant_id}
+
             try:
-                response_text = device_list.text
-                response_json = json.loads(response_text)
-                print(response_json)
-            except json.JSONDecodeError:
-                print("Error: Unable to decode JSON response.")
-                print("Response Text:", response_text)
+                response = session.post(url, params=params, verify=False)
+                response.raise_for_status()
+                device_list = response.json()
 
-            for data in response_json['resultData']:
-                plant_id = data['plantid']
-                logger_name = data['SmartLogger']
-                device_id = data['deviceid']
-                device_name = data['deviceName']
+                for data in device_list.get('resultData', []):
+                    plant_id = data.get('plantid')
+                    logger_name = data.get('SmartLogger')
+                    device_id = data.get('deviceid')
+                    device_name = data.get('deviceName')
 
-                #Send the data to API only plant_id, logger_name, device_id, device_name
-                post_devicelist_details(plant_id, logger_name, device_id, device_name)
+                    if plant_id and logger_name and device_id and device_name:
+                        post_devicelist_details(plant_id, logger_name, device_id, device_name)
+                    else:
+                        logging.warning(f"Invalid device data: {data}")
 
-        # Wait for 10 seconds before making requests for the next quarter
+            except RequestException as e:
+                logging.error(f"Device list request failed for plant ID {plant_id}: {e}")
+            except HTTPError as e:
+                logging.error(f"HTTP error occurred for plant ID {plant_id}: {e}")
+
         time.sleep(10)
 
+def get_realtime_data(base_url, plant_ids, token):
+    """
+    Retrieve real-time data for each plant:
+    - Process plant IDs in quarters to avoid overloading the server.
+    - Send daily power generation data to the API.
+    """
+    quarter_size = max(1, len(plant_ids) // 4)
+    quarters = [plant_ids[i:i + quarter_size] for i in range(0, len(plant_ids), quarter_size)]
 
-def get_realtime_data(BASE_URL, plant_ids, token):
-    # Calculate the quarter size
-    quarter_size = len(plant_ids) // 4
-    first_quarter = plant_ids[:quarter_size]
-    second_quarter = plant_ids[quarter_size:2*quarter_size]
-    third_quarter = plant_ids[2*quarter_size:3*quarter_size]
-    fourth_quarter = plant_ids[3*quarter_size:]
-
-    quarters = [first_quarter, second_quarter, third_quarter, fourth_quarter]
-    # Iterate over each quarter
     for quarter in quarters:
-        # Iterate over each plant ID in the current quarter
         for plant_id in quarter:
-            print(f"Plant ID number= {plant_id}")
-            url = f'{BASE_URL}/queryDeviceDetail'
-            params = {
-                'openApiroarand': token,
-                'plantid': plant_id
-            }
-            real_time_data = session.post(url, params=params, verify=False)
-            real_time_data.raise_for_status()
-            response_json = real_time_data.json()
+            logging.info(f"Fetching real-time data for plant ID: {plant_id}")
+            url = f'{base_url}/queryDeviceDetail'
+            params = {'openApiroarand': token, 'plantid': plant_id}
 
-            if 'resultSunData' in response_json['resultData']:
-                for data in response_json['resultData']['resultSunData']:
-                    device_id = data['deviceid']
-                    power_gene = data['dailyPowerGeneration']
-                    post_daily_power_generation(device_id, power_gene)
-                    #print(data)
-            else:
-                print('Received empty device data.')
-        # Wait for 10 seconds before making requests for the next quarter
+            try:
+                response = session.post(url, params=params, verify=False)
+                response.raise_for_status()
+                real_time_data = response.json()
+
+                if 'resultSunData' in real_time_data.get('resultData', {}):
+                    for data in real_time_data['resultData']['resultSunData']:
+                        device_id = data.get('deviceid')
+                        power_gene = data.get('dailyPowerGeneration')
+
+                        if device_id and power_gene is not None:
+                            post_daily_power_generation(device_id, power_gene)
+                        else:
+                            logging.warning(f"Invalid real-time data: {data}")
+
+                else:
+                    logging.warning('Received empty device data.')
+
+            except RequestException as e:
+                logging.error(f"Real-time data request failed for plant ID {plant_id}: {e}")
+            except HTTPError as e:
+                logging.error(f"HTTP error occurred for plant ID {plant_id}: {e}")
+
         time.sleep(10)
 
-
-
-def logout(BASE_URL, token):
-    url = f'{BASE_URL}/logout'
+def logout(base_url, token):
+    """Logout from the API."""
+    url = f'{base_url}/logout'
     params = {'openApiroarand': token}
-    response = session.post(url, params=params, verify=False)
-    response.raise_for_status()
-    return response.json()
-
-
-
-
+    try:
+        response = session.post(url, params=params, verify=False)
+        response.raise_for_status()
+        return response.json()
+    except RequestException as e:
+        logging.error(f"Logout request failed: {e}")
+        raise
+    except HTTPError as e:
+        logging.error(f"HTTP error occurred: {e}")
+        raise
 
 def main():
-    # Get the path to the JSON file relative to the current script location
+    """Main function to execute the API workflow."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
     json_file_path = os.path.join(current_dir, 'credentials.json')
 
-    credentials = read_credentials_from_json(json_file_path)
+    try:
+        credentials = read_credentials_from_json(json_file_path)
+    except Exception as e:
+        logging.critical(f"Failed to load credentials: {e}")
+        return
+
     for cred in credentials:
-        print(f'Starting to access API for {cred["host"]}...')
+        logging.info(f"Starting to access API for {cred['host']}...")
         try:
-            # Construct BASE_URL using host and port from credentials
             BASE_URL = cred['base_url']
-            
             login_response = login(BASE_URL, cred['user'], cred['password'])
-            token = login_response['openApiroarand']
+            token = login_response.get('openApiroarand')
 
-            # Call other functions using credentials from 'cred'
-            plant_list_response = get_plant_list(BASE_URL, token)
-            handle_plant_list(plant_list_response, BASE_URL, token)
+            if token:
+                plant_list_response = get_plant_list(BASE_URL, token)
+                handle_plant_list(plant_list_response, BASE_URL, token)
+                logout_response = logout(BASE_URL, token)
+                logging.info('Logged out successfully.')
+            else:
+                logging.error('Login failed, token not received.')
 
-            logout_response = logout(BASE_URL, token)
-            print('Logged out successfully.')
         except Exception as e:
-            print(f"Error: {e}")
+            logging.error(f"Error processing {cred['host']}: {e}")
 
 if __name__ == "__main__":
     main()

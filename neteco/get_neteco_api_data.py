@@ -82,7 +82,7 @@ def handle_plant_list(plant_list_response, base_url, token):
         logging.warning('Received empty plant list.')
 
     handle_device_list(base_url, plant_ids, token)
-    #get_realtime_data(base_url, plant_ids, token)
+    get_realtime_data(base_url, plant_ids, token)
 
 
 def handle_device_list(base_url, plant_ids, token):
@@ -129,6 +129,7 @@ def get_realtime_data(base_url, plant_ids, token):
     - Process plant IDs in quarters to avoid overloading the server.
     - Send daily power generation data to the API.
     """
+    
     quarter_size = max(1, len(plant_ids) // 4)
     quarters = [plant_ids[i:i + quarter_size] for i in range(0, len(plant_ids), quarter_size)]
 

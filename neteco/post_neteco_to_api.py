@@ -46,8 +46,8 @@ def post_devicelist_details(plant_id, logger_name, device_id, device_name):
     plant_name = "unknown"
     post_url = "http://127.0.0.1:8000/api/core/devices/"
     data = {
-        "plant_id": plant_id,
-        "plant_name": plant_name,
+        # "plant_id": plant_id,
+        # "plant_name": plant_name,
         "logger_name": logger_name,
         "device_id": device_id,
         "device_name": device_name

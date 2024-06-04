@@ -73,7 +73,7 @@ def handle_plant_list(plant_list_response, base_url, token):
             plant_name = plant.get('plantName')
 
             if plants_id and plant_name:
-                post_plant_details(plants_id, plant_name)
+                #post_plant_details(plants_id, plant_name)
                 plant_ids.append(plants_id)
             else:
                 logging.warning(f"Invalid plant data: {plant}")
@@ -81,7 +81,7 @@ def handle_plant_list(plant_list_response, base_url, token):
     else:
         logging.warning('Received empty plant list.')
 
-    handle_device_list(base_url, plant_ids, token)
+    #handle_device_list(base_url, plant_ids, token)
     get_realtime_data(base_url, plant_ids, token)
 
 

@@ -1,4 +1,4 @@
-from .post_config import API_TOKEN
+from .post_config import API_TOKEN, BASE_URL
 import requests
 
 # Set up headers for API requests
@@ -15,7 +15,7 @@ def post_plant_details(plants_id, plant_name):
     plants_id (str): The ID of the plant.
     plant_name (str): The name of the plant.
     """
-    post_url = "http://127.0.0.1:8000/api/core/powerplants/"
+    post_url = f"{BASE_URL}/core/powerplants/"
     data = {
         "plant_id": plants_id,
         "plant_name": plant_name
@@ -44,7 +44,7 @@ def post_devicelist_details(plant_id, logger_name, device_id, device_name):
     device_name (str): The name of the device.
     """
     plant_name = "unknown"
-    post_url = "http://127.0.0.1:8000/api/core/devices/"
+    post_url = f"{BASE_URL}/core/devices/"
     data = {
         # "plant_id": plant_id,
         # "plant_name": plant_name,
@@ -74,8 +74,8 @@ def post_daily_power_generation(device_id, power_gene):
     power_gene (int): The power generation value.
     """
     print(f"Searching for device with ID: {device_id}")
-    post_url = "http://127.0.0.1:8000/api/core/device-power-gen/"
-    get_url = "http://127.0.0.1:8000/api/core/devices/"
+    post_url = f"{BASE_URL}/core/device-power-gen/"
+    get_url = f"{BASE_URL}/core/devices/"
 
     try:
         response = requests.get(get_url, headers=HEADERS)

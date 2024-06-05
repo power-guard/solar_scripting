@@ -1,0 +1,137 @@
+# solar edge ##############################################
+solar_edge_bulk:
+    api_key: "2L56E7IPELVF8IYN6Q94ICHB6OX561WE"
+    plants:
+        AP100360B: 548552
+        AP100369B: 489313
+        AP100370B: 547653
+        AP100387B: 680513
+        GSS100001B: 1005008
+        IKD100001B: 746577
+        IKD100002B: 746581
+        IKD100003B: 746609
+        MD100045B: 613551
+
+solar_edge_inverters:
+    1518402:
+        api_key: "SCFFKD8FRWEEFMWAWQ76TTQT3657T6OD"
+        system_ids:
+            - CR100166B
+            - CR100167B
+    1746076:
+        api_key: "Z3KIV56T5CQ7TTNXF0YUA2JPOZDC3LM9"
+        system_ids:
+            - ZN100058B
+            - ZN100059B
+            - ZN100061B
+            - ZN100062B
+            - ZN100063B
+            - ZN100064B
+            - ZN100065B
+            - ZN100066B
+            - ZN100067B
+            - ZN100060B
+    1014339:
+        api_key: "M56KLT7B8EQPHGFOUCYRE3CCV7L493MV"
+        system_ids:
+            - AN100001B
+            - AN100002B
+            - AN100003B
+            - AN100004B
+            - AN100005B
+            - AN100006B
+    715400:
+        api_key: "ISW40GBR26F13B8T6209JR9B0FNE4FC2"
+        system_ids:
+            - DS100024B
+            - DS100025B
+            - DS100026B
+    749487:
+        api_key: "T0ONR6NNO9AXN87Q229NRCR4YP1NOKF3"
+        system_ids:
+            - DS100027B
+            - DS100028B
+            - DS100029B
+            - DS100030B
+    1819618:
+        api_key: "FVX9J1WUSE1ZQPYQ72GJ7K32IGG788YX"
+        system_ids:
+            - ZN100236B
+            - ZN100237B
+            - ZN100238B
+            - ZN100239B
+            - ZN100240B
+            - ZN100241B
+            - ZN100242B
+            - ZN100243B
+            - ZN100244B
+            - ZN100245B
+            - ZN100246B
+            - ZN100247B
+            - ZN100248B
+            - ZN100249B
+            - ZN100250B
+            - ZN100251B
+            - ZN100252B
+            - ZN100253B
+            - ZN100254B
+    2226991:
+        api_key: "MTD2A0O9V8N5F03NM5Z6ZL2Y14X2OEMZ"
+        system_ids:
+            - MD100007B
+            - MD100008B
+            - MD100009B
+            - MD100010B
+            - MD100011B
+            - MD100012B
+            - MD100013B
+            - MD100014B
+            - MD100015B
+            - MD100016B
+            - MD100017B
+            - MD100018B
+            - MD100019B
+            - MD100020B
+            - MD100021B
+            - MD100022B
+            - MD100023B
+            - MD100024B
+            - MD100025B
+            - MD100026B
+            - MD100027B
+            - MD100028B
+            - MD100029B
+            - MD100030B
+            - MD100031B
+            - MD100032B
+            - MD100033B
+            - MD100034B
+            - MD100035B
+            - MD100036B
+            - MD100037B
+            - MD100038B
+            - MD100039B
+            - MD100040B
+            - MD100041B
+            - MD100042B
+            - MD100043B
+            - MD100044B
+
+    650693:
+        api_key: "5RZ5NOQDQPDT3WZ6X99R4Q1J4X2WUHFB"
+        system_ids:
+            - AP100372B
+            - AP100373B
+            - AP100374B
+            - AP100375B
+            - AP100376B
+            - AP100377B
+            - AP100378B
+            - AP100379B
+            - AP100380B
+            - AP100381B
+            - AP100382B
+            - AP100383B
+            - AP100384B
+            - AP100385B
+            - AP100386B

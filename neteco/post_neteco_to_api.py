@@ -1,4 +1,4 @@
-from .post_config import API_TOKEN, BASE_URL
+from post_config import API_TOKEN, BASE_URL
 import requests
 
 # Set up headers for API requests
@@ -43,7 +43,6 @@ def post_devicelist_details(plant_id, logger_name, device_id, device_name):
     device_id (str): The ID of the device.
     device_name (str): The name of the device.
     """
-    plant_name = "unknown"
     post_url = f"{BASE_URL}/core/devices/"
     data = {
         # "plant_id": plant_id,

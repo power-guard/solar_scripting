@@ -1,6 +1,7 @@
 from neteco import get_neteco_api_data
 from solar_edge import get_solar_edge_api_data
-from leye import get_data
+from leye import leye_get_data
+from ecolive import eco_live_get_data
 
 def run_all_apis():
     print('Starting Featching...')
@@ -17,9 +18,13 @@ def run_all_apis():
 
         # l-eye API Calls
         print("L-eye data featching from API process start.")
-        get_data. main()
+        leye_get_data. main()
         print("L-eye data featching from API process end.")
 
+        # Ecolive API Calls
+        print("Ecolive data featching from API process start.")
+        eco_live_get_data. main()
+        print("Ecolive data featching from API process end.")
 
         # l-eye API Calls
         # Call functions from fusionsolar_api similarly

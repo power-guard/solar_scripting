@@ -3,6 +3,7 @@ from solar_edge import get_solar_edge_api_data
 from leye import leye_get_data
 from ecolive import eco_live_get_data
 from tabuchi_cloud import tabuchi_cloud_get_data
+from fusion_solar import fusion_solar_get_data
 
 def run_all_apis():
     print('Starting Featching...')
@@ -31,6 +32,11 @@ def run_all_apis():
         print("Tabuchi Cloud data featching from API process start.")
         tabuchi_cloud_get_data. main()
         print("Tabuchi Cloud data featching from API process end.")
+
+        # Fusion Solar API Calls
+        print("Fusion Solar data featching from API process start.")
+        fusion_solar_get_data. main()
+        print("Fusion Solar data featching from API process end.")
 
         # l-eye API Calls
         # Call functions from fusionsolar_api similarly

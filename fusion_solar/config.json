@@ -1,0 +1,23 @@
+{
+  "accounts": [
+    {
+      "user": "ShiftEnergyJapan",
+      "password": "Test_123456",
+      "sites": {
+        "DS100021B": "086E4BF2E32D457D872188D5D4FF5861",
+        "DS100019B": "60010748EE334B70A0C9379D69C1B1E4",
+        "DS100020B": "22E2B324CEC048DD9689DACB15B591C3"
+      }
+    },
+    {
+      "user": "mkgjapan-1",
+      "password": "Changeme1234",
+      "sites": {
+        "ADN100011B": "NE=33839304",
+        "GUL100002B": "NE=33841870",
+        "GUL100003B": "NE=33842687",
+        "GUL100001B": "NE=33844156"
+      }
+    }
+  ]
+}

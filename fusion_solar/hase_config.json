@@ -1,0 +1,9 @@
+{
+    "base_url": "https://jp5.fusionsolar.huawei.com",
+    "user_name": "hase@morelife.jp",
+    "password": "more3808",
+    "sites": {
+      "PGOM100219": "NE=33611635",
+      "PGOM100220": "NE=33612207"
+    }
+  }

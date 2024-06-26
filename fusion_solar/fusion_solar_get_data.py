@@ -9,6 +9,7 @@ from .post_fusion_solar_api_data import (
     post_plant_details,
     post_daily_power_generation
 )
+from .get_data_script import hase_script
 
 logger = logging.getLogger('fusion_solar')
 logger.setLevel(logging.INFO)
@@ -107,6 +108,10 @@ def fetch_and_print_daily_kpi(client: FusionSolarClient, target_date: datetime, 
                     post_plant_details(site_name)
                     post_daily_power_generation(site_name, inverter_power)
                     print(f"Site: {site_name}, Date: {collect_time}, Inverter Power: {inverter_power} kWh")
+        """
+            Run the script to get the data from hase 
+        """
+        hase_script()
 
     except Exception as e:
         logger.error(f"Error occurred: {e}")

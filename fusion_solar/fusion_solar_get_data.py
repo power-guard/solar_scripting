@@ -9,7 +9,7 @@ from .post_fusion_solar_api_data import (
     post_plant_details,
     post_daily_power_generation
 )
-from .get_data_script import hase_script
+from .get_hase_data_script import hase_script
 
 logger = logging.getLogger('fusion_solar')
 logger.setLevel(logging.INFO)

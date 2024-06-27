@@ -10,6 +10,7 @@ from .post_fusion_solar_api_data import (
     post_daily_power_generation
 )
 
+
 def load_config(config_path='fusion_solar/hase_config.json'):
     with open(config_path) as config_file:
         return json.load(config_file)
@@ -66,6 +67,7 @@ def hase_script():
             fetch_electricity_generation(driver, config['base_url'], site_identifier, ne_number)
     finally:
         driver.quit()
+    
 
 if __name__ == "__main__":
     hase_script()

@@ -2,6 +2,6 @@
 This is the base url and token for data base API.
 """
 
-BASE_URL = "http://127.0.0.1:8000/api"
+BASE_URL = "http://52.197.248.126:8080/api"
 
-API_TOKEN = "7a5b74fca2e53ce8e6369424670a57ef59c6582f"
+API_TOKEN = "3ea6afc47a16ad9dcc8f3316c772859d1f906983"

@@ -45,6 +45,11 @@ def run_all_apis():
         print("L-eye data featching from API process end.")
 
         # l-eye API Calls
+        print("L-eye data featching from API process start.")
+        leye_get_data. main()
+        print("L-eye data featching from API process end.")
+
+        # l-eye API Calls
         # Call functions from fusionsolar_api similarly
 
         print('All API calls completed successfully.')

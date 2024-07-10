@@ -1,0 +1,41 @@
+{
+    "base_url": "https://jp5.fusionsolar.huawei.com",
+    "user_name": "om@shiftenergyjapan.com",
+    "password": "Kona2020",
+    "sites": {
+        "SLH100001-4B": {
+            "id": "NE=33557257",
+            "system": [
+                "SLH100001B",
+                "SLH100002B",
+                "SLH100003B",
+                "SLH100004B"
+            ]
+        },
+        "ADN1-10B": {
+            "id": "NE=33559792",
+            "system": [
+                "ADN100001B",
+                "ADN100002B",
+                "ADN100003B",
+                "ADN100004B",
+                "ADN100005B",
+                "ADN100006B",
+                "ADN100007B",
+                "ADN100008B",
+                "ADN100009B",
+                "ADN100010B"
+            ]
+        },
+        "ZN100232-235B": {
+            "id": "NE=33613633",
+            "system": [
+                "ZN100232B",
+                "ZN100233B",
+                "ZN100234B",
+                "ZN100235B"
+            ]
+        }
+    }
+  }
+  

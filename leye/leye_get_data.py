@@ -128,19 +128,19 @@ def automate_get_data(system_id, site_id, password, date_to_fetch):
     url = f"https://laplaceid.energymntr.com/?callback=https://services.energymntr.com/megasolar/{site_id}/login/index.php"
 
     # Initialize the WebDriver (e.g., Chrome)
-    #driver = webdriver.Chrome()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run Chrome in headless mode
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome()
+    # options = webdriver.ChromeOptions()
+    # options.add_argument("--headless")  # Run Chrome in headless mode
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--disable-dev-shm-usage")
+    # driver = webdriver.Chrome(options=options)
 
     try:
         # Open the login page
         driver.get(url)
 
         # Wait for the username field to be present
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'idtext')))
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.NAME, 'idtext')))
 
         # Find the username and password fields and the login button
         username_field = driver.find_element(By.NAME, 'idtext')
@@ -151,11 +151,13 @@ def automate_get_data(system_id, site_id, password, date_to_fetch):
         username_field.send_keys(site_id)
         password_field.send_keys(password)
 
+        time.sleep(7)
+
         # Click the login button
         login_button.click()
 
         # Wait for the login to complete and the next page to load
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[@id="widgetArea"]/div/div[3]/div/div[2]/p[2]')))
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//*[@id="widgetArea"]/div/div[3]/div/div[2]/p[2]')))
 
         # Find the element with the required text
         daily_prod = driver.find_element(By.XPATH, '//*[@id="widgetArea"]/div/div[3]/div/div[2]/p[2]')

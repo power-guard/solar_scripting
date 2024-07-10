@@ -4,50 +4,47 @@ from leye import leye_get_data
 from ecolive import eco_live_get_data
 from tabuchi_cloud import tabuchi_cloud_get_data
 from fusion_solar import fusion_solar_get_data
-from fusion_solar_automation.get_fusion_solar import main
+from fusion_solar_automation import get_fusion_solar
 
 def run_all_apis():
     print('Starting Featching...')
     try:
         # NetEco API Calls
         print("NetEco data featching from API process start.")
-        get_neteco_api_data. main()
+        get_neteco_api_data.main()
         print("NetEco data featching from API process end.")
 
         # SolarEdge API Calls
         print("Solar Edge data featching from API process start.")
-        get_solar_edge_api_data. main()
+        get_solar_edge_api_data.main()
         print("Solar Edge data featching from API process end.")
 
         # Ecolive API Calls
         print("Ecolive data featching from API process start.")
-        eco_live_get_data. main()
+        eco_live_get_data.main()
         print("Ecolive data featching from API process end.")
 
         # tabuchi_cloud API Calls
         print("Tabuchi Cloud data featching from API process start.")
-        tabuchi_cloud_get_data. main()
+        tabuchi_cloud_get_data.main()
         print("Tabuchi Cloud data featching from API process end.")
 
         # Fusion Solar API Calls
         print("Fusion Solar data featching from API process start.")
-        fusion_solar_get_data. main()
+        fusion_solar_get_data.main()
         print("Fusion Solar data featching from API process end.")
 
         # SolarEdge API Calls
         print("Fusion solar data fetching from API process start.")
-        main()
+        get_fusion_solar.main()
         print("Fusion sola data fetching from API process end.")
 
         # l-eye API Calls
         print("L-eye data featching from API process start.")
-        leye_get_data. main()
+        leye_get_data.main()
         print("L-eye data featching from API process end.")
 
-        # l-eye API Calls
-        print("L-eye data featching from API process start.")
-        leye_get_data. main()
-        print("L-eye data featching from API process end.")
+        
 
         # l-eye API Calls
         # Call functions from fusionsolar_api similarly

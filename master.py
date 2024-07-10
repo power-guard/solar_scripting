@@ -18,11 +18,6 @@ def run_all_apis():
         get_solar_edge_api_data. main()
         print("Solar Edge data featching from API process end.")
 
-        # l-eye API Calls
-        print("L-eye data featching from API process start.")
-        leye_get_data. main()
-        print("L-eye data featching from API process end.")
-
         # Ecolive API Calls
         print("Ecolive data featching from API process start.")
         eco_live_get_data. main()
@@ -37,6 +32,11 @@ def run_all_apis():
         print("Fusion Solar data featching from API process start.")
         fusion_solar_get_data. main()
         print("Fusion Solar data featching from API process end.")
+
+        # l-eye API Calls
+        print("L-eye data featching from API process start.")
+        leye_get_data. main()
+        print("L-eye data featching from API process end.")
 
         # l-eye API Calls
         # Call functions from fusionsolar_api similarly

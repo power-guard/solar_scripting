@@ -9,40 +9,72 @@ from fusion_solar_automation import get_fusion_solar
 def run_all_apis():
     print('Starting Featching...')
     try:
+        print("-------------------------------------------------------------------------\n"
+              "-----------------------------START---------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
+
         # NetEco API Calls
         print("NetEco data featching from API process start.")
         get_neteco_api_data.main()
         print("NetEco data featching from API process end.")
+
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
 
         # SolarEdge API Calls
         print("Solar Edge data featching from API process start.")
         get_solar_edge_api_data.main()
         print("Solar Edge data featching from API process end.")
 
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
+
         # Ecolive API Calls
         print("Ecolive data featching from API process start.")
         eco_live_get_data.main()
         print("Ecolive data featching from API process end.")
+
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
 
         # tabuchi_cloud API Calls
         print("Tabuchi Cloud data featching from API process start.")
         tabuchi_cloud_get_data.main()
         print("Tabuchi Cloud data featching from API process end.")
 
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
+
         # Fusion Solar API Calls
         print("Fusion Solar data featching from API process start.")
         fusion_solar_get_data.main()
         print("Fusion Solar data featching from API process end.")
 
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
+
         # SolarEdge API Calls
-        print("Fusion solar data fetching from API process start.")
+        print("SolarEdge data fetching from API process start.")
         get_fusion_solar.main()
-        print("Fusion sola data fetching from API process end.")
+        print("SolarEdge data fetching from API process end.")
+
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
 
         # l-eye API Calls
         print("L-eye data featching from API process start.")
         leye_get_data.main()
         print("L-eye data featching from API process end.")
+
+        print("-------------------------------------------------------------------------\n"
+              "-------------------------------END---------------------------------------\n"
+              "-------------------------------------------------------------------------\n"  )
 
         
 

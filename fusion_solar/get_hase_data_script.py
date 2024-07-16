@@ -27,7 +27,9 @@ def login(driver, login_url, username, password):
     
     username_field.send_keys(username)
     password_field.send_keys(password)
-    
+
+    time.sleep(5)
+
     login_button = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="submitDataverify"]')))
     login_button.click()
     
@@ -53,12 +55,12 @@ def hase_script():
     config = load_config()
 
     # Initialize the WebDriver (e.g., Chrome)
-    #driver = webdriver.Chrome()
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run Chrome in headless mode
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome()
+    # options = webdriver.ChromeOptions()
+    # options.add_argument("--headless")  # Run Chrome in headless mode
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--disable-dev-shm-usage")
+    # driver = webdriver.Chrome(options=options)
 
     try:
         login(driver, config['base_url'], config['user_name'], config['password'])

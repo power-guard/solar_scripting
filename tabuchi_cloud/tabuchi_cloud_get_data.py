@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,11 +18,14 @@ def load_credentials(file_path):
 
 def initialize_driver():
 
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run Chrome in headless mode
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(options=options)
+    # options = webdriver.ChromeOptions()
+    # options.add_argument("--headless")  # Run Chrome in headless mode
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--disable-dev-shm-usage")
+    # driver = webdriver.Chrome(options=options)
+
+    driver = webdriver.Chrome()
+    driver.maximize_window()
     return driver
 
 def login(driver, base_url, user_id, password):
@@ -38,11 +42,12 @@ def login(driver, base_url, user_id, password):
     
     username_field.send_keys(user_id)
     password_field.send_keys(password)
+    time.sleep(5)
     login_button.click()
     
 def get_energy_generation(driver):
     # Wait for the energy generation element to be available
-    energy_generation_element = WebDriverWait(driver, 10).until(
+    energy_generation_element = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, '//*[@id="root_pagemashupcontainer-1_ValueDisplay-373"]/table/tbody/tr/td/div/div/div'))
     )
     return energy_generation_element.text

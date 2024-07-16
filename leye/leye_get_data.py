@@ -147,8 +147,10 @@ def automate_get_data(system_id, site_id, password, date_to_fetch):
         password_field = driver.find_element(By.NAME, 'pwtext')
         login_button = driver.find_element(By.XPATH, '//*[@id="loginWidget"]/div/div[2]/div/div[2]/button')
 
+        time.sleep(5)
         # Enter the username and password
         username_field.send_keys(site_id)
+        time.sleep(5)
         password_field.send_keys(password)
 
         time.sleep(7)

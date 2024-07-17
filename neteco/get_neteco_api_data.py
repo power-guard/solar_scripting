@@ -4,11 +4,12 @@ import requests
 import json
 import logging
 from requests.exceptions import RequestException, HTTPError
+from collections import defaultdict
 from .post_neteco_to_api import (
     post_plant_details, 
-    post_devicelist_details,
     post_daily_power_generation
 )
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -82,7 +83,7 @@ def handle_plant_list(plant_list_response, base_url, token):
         logging.warning('Received empty plant list.')
 
     handle_device_list(base_url, plant_ids, token)
-    get_realtime_data(base_url, plant_ids, token)
+    
 
 
 def handle_device_list(base_url, plant_ids, token):
@@ -91,6 +92,9 @@ def handle_device_list(base_url, plant_ids, token):
     - Process plant IDs in quarters to avoid overloading the server.
     - Send device details to the API.
     """
+
+    # Initialize an empty dictionary to store the smartloggers
+    smartlogger_data = {}
     quarter_size = max(1, len(plant_ids) // 4)
     quarters = [plant_ids[i:i + quarter_size] for i in range(0, len(plant_ids), quarter_size)]
 
@@ -105,39 +109,61 @@ def handle_device_list(base_url, plant_ids, token):
                 response.raise_for_status()
                 device_list = response.json()
 
+
+                if plant_id not in smartlogger_data:
+                    smartlogger_data[plant_id] = []
+
                 for data in device_list.get('resultData', []):
-                    plant_id = data.get('plantid')
                     logger_name = data.get('SmartLogger')
                     device_id = data.get('deviceid')
                     device_name = data.get('deviceName')
 
-                    if plant_id and logger_name and device_id and device_name:
-                        post_devicelist_details(plant_id, logger_name, device_id, device_name)
-                    else:
-                        logging.warning(f"Invalid device data: {data}")
+                    smartlogger_data[plant_id].append({
+                        "logger_name": logger_name,
+                        'device_id': device_id,
+                        'device_name': device_name
+                    })
+                    
+                 
+                    
 
             except RequestException as e:
                 logging.error(f"Device list request failed for plant ID {plant_id}: {e}")
-            except HTTPError as e:
-                logging.error(f"HTTP error occurred for plant ID {plant_id}: {e}")
+
 
         time.sleep(10)
+    # print(smartlogger_data)
+    get_realtime_data(base_url, smartlogger_data, token)
 
-def get_realtime_data(base_url, plant_ids, token):
+
+def get_realtime_data(base_url, smartlogger_data, token):
     """
-    Retrieve real-time data for each plant:
-    - Process plant IDs in quarters to avoid overloading the server.
-    - Send daily power generation data to the API.
+    Get real-time data for each SmartLogger.
     """
-    
-    quarter_size = max(1, len(plant_ids) // 4)
-    quarters = [plant_ids[i:i + quarter_size] for i in range(0, len(plant_ids), quarter_size)]
+    quarter_size = max(1, len(smartlogger_data) // 4)
+    quarters = [list(smartlogger_data.items())[i:i + quarter_size] for i in range(0, len(smartlogger_data), quarter_size)]
+
+    def parse_power_gen(value):
+        """
+        Helper function to convert power generation values to float.
+        Treats None, empty string, space, and other non-numeric values as 0.
+        """
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
 
     for quarter in quarters:
-        for plant_id in quarter:
-            logging.info(f"Fetching real-time data for plant ID: {plant_id}")
+        for plant_id, devices in quarter:
+            print(f"Processing real-time data for plant ID: {plant_id}")
             url = f'{base_url}/queryDeviceDetail'
             params = {'openApiroarand': token, 'plantid': plant_id}
+            
+            # Create a dictionary mapping device IDs to logger names
+            device_id_to_logger_name = {device['device_id']: device['logger_name'] for device in devices}
+                
+            # Dictionary to store cumulative power generation for each logger name
+            logger_name_to_power_gen = {}
 
             try:
                 response = session.post(url, params=params, verify=False)
@@ -147,22 +173,37 @@ def get_realtime_data(base_url, plant_ids, token):
                 if 'resultSunData' in real_time_data.get('resultData', {}):
                     for data in real_time_data['resultData']['resultSunData']:
                         device_id = data.get('deviceid')
-                        power_gene = data.get('dailyPowerGeneration')
+                        power_gene = parse_power_gen(data.get('dailyPowerGeneration'))
+                    
+                        if device_id is not None:
+                            # Get the logger name from the dictionary
+                            logger_name = device_id_to_logger_name.get(device_id, device_id)
+                                
+                            # Sum the power generation for each logger name
+                            if logger_name in logger_name_to_power_gen:
+                                logger_name_to_power_gen[logger_name] += power_gene
+                            else:
+                                logger_name_to_power_gen[logger_name] = power_gene
 
-                        if device_id and power_gene is not None:
-                            post_daily_power_generation(device_id, power_gene)
                         else:
                             logging.warning(f"Invalid real-time data: {data}")
-
                 else:
                     logging.warning('Received empty device data.')
 
             except RequestException as e:
                 logging.error(f"Real-time data request failed for plant ID {plant_id}: {e}")
-            except HTTPError as e:
-                logging.error(f"HTTP error occurred for plant ID {plant_id}: {e}")
+
+            # Print the cumulative power generation for each logger name
+            for logger_name, total_power in logger_name_to_power_gen.items():
+                print(f"{logger_name} generated {total_power} kWh today.")
+                total_power = round(total_power, 3)
+                post_daily_power_generation(logger_name, total_power)
 
         time.sleep(10)
+
+
+
+
 
 def logout(base_url, token):
     """Logout from the API."""

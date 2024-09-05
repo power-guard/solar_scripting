@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 
 from .post_data import (
     post_plant_details,
@@ -40,9 +41,7 @@ def login(driver, base_url, username, password):
 def click_first_available_search_button(driver):
     """Click the first available search button."""
     xpaths = [
-        '//*[@id="rc-tabs-0-panel-inverter"]/div/div/div[1]/div[1]/div/form/div[4]/div/div/div/button',
-        '//*[@id="rc-tabs-1-panel-inverter"]/div/div/div[1]/div[1]/div/form/div[4]/div/div/div/button',
-        '//*[@id="rc-tabs-2-panel-inverter"]/div/div/div[1]/div[1]/div/form/div[4]/div/div/div/button'
+        '/html/body/div[3]/div/div/div/div/div[3]/div[2]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div/div[1]/div[1]/div/form/div[4]/div/div/div/div/button'
     ]
 
     for xpath in xpaths:
@@ -56,33 +55,45 @@ def click_first_available_search_button(driver):
 
 def interact_with_first_available_search_table(driver, word_to_search):
     """Interact with the first available search table and calculate total electricity generation."""
-    xpaths = [
-        '//*[@id="rc-tabs-0-panel-inverter"]/div/div/div[2]/div[2]/div/div/div/div/div[2]/table',
-        '//*[@id="rc-tabs-1-panel-inverter"]/div/div/div[2]/div[2]/div/div/div/div/div[2]/table',
-        '//*[@id="rc-tabs-2-panel-inverter"]/div/div/div[2]/div[2]/div/div/div/div/div[2]/table'
-    ]
+    try:
+        # Check if the table body element exists by the provided XPath
+        table_element = driver.find_element(By.XPATH, '/html/body/div[3]/div/div/div/div/div[3]/div[2]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/div/div/div[2]/table/tbody')
 
-    for xpath in xpaths:
         try:
-            table_element = driver.find_element(By.XPATH, xpath)
-            rows = table_element.find_elements(By.TAG_NAME, 'tr')
+            # Find all <tr> elements within the table body
+            tr_elements = table_element.find_elements(By.TAG_NAME, 'tr')
+            tr_count = len(tr_elements)
 
-            total_elect_gen = 0.0
-            for row in rows[1:]:
-                td_4 = row.find_element(By.XPATH, './td[4]')
-                td_4_value = float(td_4.text.strip())
-                total_elect_gen += td_4_value
-            total_elect_gen = round(total_elect_gen, 3)
+            print(f"Number of <tr> tags: {tr_count}")
+            total_sum = 0  
+            # Loop from 2 to tr_count (Python uses zero-based index)
+            for i in range(1, tr_count):  # Loop starts from index 1 for the second <tr> element
+                # Dynamically construct the XPath for each row's <td[4]> <span>
+                dynamic_xpath = f'/html/body/div[3]/div/div/div/div/div[3]/div[2]/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div/div[2]/div[2]/div/div/div/div/div[2]/table/tbody/tr[{i + 1}]/td[4]/span'
+
+                try:
+                    # Locate the <span> element based on the dynamically constructed XPath
+                    span_element = driver.find_element(By.XPATH, dynamic_xpath)
+                    span_text = span_element.text.strip()
+
+                    # Convert the text to a float (or int) if it's numeric and add to the total sum
+                    try:
+                        number = float(span_text)  # Use float for decimal values, change to int if you expect only integers
+                        total_sum += number
+                        print(f"Row {i + 1}, <td[4]> <span> text: {span_text} (number added to sum)")
+                    except ValueError:
+                        print(f"Row {i + 1}, <td[4]> <span> text: '{span_text}' is not a valid number") 
+                except NoSuchElementException:
+                    print(f"Row {i + 1}, <td[4]> <span> not found")
+            total_sum_rounded = round(total_sum, 3)
             post_plant_details(word_to_search)
-            post_daily_power_generation(word_to_search, total_elect_gen)
-            print(f"{word_to_search}: {total_elect_gen}")    
-
-            return True
-        except Exception as e:
-            print(f"Table in this '{xpath}' is not found.")
-            continue
-    
-    return False
+            post_daily_power_generation(word_to_search, total_sum)
+            print(f"{word_to_search}: {total_sum_rounded}")
+        except NoSuchElementException:
+            print("No such table row")
+    except NoSuchElementException:
+        print("Table element not found")
+        
 
 def process_sites(driver, config, base_url):
     """Process each site and interact with elements."""

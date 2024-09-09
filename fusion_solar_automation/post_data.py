@@ -40,21 +40,26 @@ def post_daily_power_generation(plant_name, power_gene):
     
     Parameters:
     plant_name (str): The ID of the device.
-    power_gene (int): The power generation value.
+    power_gene (float/int): The power generation value.
     """
     print(f"Searching for device with ID: {plant_name}")
-    #this is use to create a loger powergen
+    # Logger power generation URL
     logger_power_gen_url = f"{BASE_URL}/core/logger-power-gen/"
-
     
-
+    # Ensure that power_gen has no more than 10 digits in total
+    if len(str(int(power_gene))) > 7:  # 7 digits before the decimal point
+        print(f"Error: The power_gen value exceeds the allowed limit of 10 digits: {power_gene}")
+        return
+    
+    # Round power_gene to 3 decimal places
     logger_power_gen_data = {
         'logger_name': plant_name,
-        'power_gen': power_gene
+        'power_gen': round(power_gene, 3)  # Round off to 3 decimal places
     }
 
+    print(f"Sending power generation data: {logger_power_gen_data}")
+
     try:
-        
         response = requests.post(logger_power_gen_url, headers=HEADERS, json=logger_power_gen_data)
         response.raise_for_status()
         
@@ -62,7 +67,8 @@ def post_daily_power_generation(plant_name, power_gene):
             response_json = response.json()
             print('Logger Power Generation Response:', response_json)
         except ValueError:
-            print('Error: One or both response contents are not valid JSON')
+            print('Error: Response content is not valid JSON')
 
     except requests.exceptions.RequestException as e:
-        print(f"Failed to post device list details: {e}")
+        print(f"Failed to post power generation details: {e}")
+        print('Error Response:', response.text)

@@ -80,7 +80,7 @@ def interact_with_first_available_search_table(driver, word_to_search):
                     try:
                         number = float(span_text)  # Use float for decimal values, change to int if you expect only integers
                         total_sum += number
-                        print(f"Row {i + 1}, <td[4]> <span> text: {span_text} (number added to sum)")
+                        #print(f"Row {i + 1}, <td[4]> <span> text: {span_text} (number added to sum)")
                     except ValueError:
                         print(f"Row {i + 1}, <td[4]> <span> text: '{span_text}' is not a valid number") 
                 except NoSuchElementException:

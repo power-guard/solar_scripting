@@ -15,23 +15,24 @@ def post_plant_details(plants_id, plant_name):
     plants_id (str): The ID of the plant.
     plant_name (str): The name of the plant.
     """
-    post_url = f"{BASE_URL}/core/powerplants/"
-    data = {
-        "plant_id": plants_id,
-        "plant_name": plant_name
-    }
-    try:
-        response = requests.post(post_url, headers=HEADERS, json=data)
-        response.raise_for_status()
+    pass
+    # post_url = f"{BASE_URL}/core/powerplants/"
+    # data = {
+    #     "plant_id": plants_id,
+    #     "plant_name": plant_name
+    # }
+    # try:
+    #     response = requests.post(post_url, headers=HEADERS, json=data)
+    #     response.raise_for_status()
         
-        try:
-            response_json = response.json()
-            print('Response:', response_json)
-        except ValueError:
-            print('Error: Response content is not valid JSON')
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to post plant details: {e}")
-        print('Error Response:', response.text)
+    #     try:
+    #         response_json = response.json()
+    #         print('Response:', response_json)
+    #     except ValueError:
+    #         print('Error: Response content is not valid JSON')
+    # except requests.exceptions.RequestException as e:
+    #     print(f"Failed to post plant details: {e}")
+    #     print('Error Response:', response.text)
 
 
 def post_daily_power_generation(plant_name, power_gene):
